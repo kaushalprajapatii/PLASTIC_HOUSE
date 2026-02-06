@@ -396,10 +396,8 @@
 
 
 # ========= IMPORTS =========
-
 import os
 import json
-import urllib.parse
 import random
 from datetime import datetime
 
@@ -412,6 +410,7 @@ from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.orm import sessionmaker, declarative_base
 
 from fpdf import FPDF
+
 
 # ========= CONFIG =========
 
@@ -427,6 +426,7 @@ os.makedirs("static/bills", exist_ok=True)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
+
 # ========= DATABASE =========
 
 DATABASE_URL = "sqlite:///./database.db"
@@ -434,6 +434,7 @@ DATABASE_URL = "sqlite:///./database.db"
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(bind=engine)
 Base = declarative_base()
+
 
 # ========= MODELS =========
 
@@ -446,7 +447,7 @@ class Product(Base):
     stock = Column(Integer)
     sold = Column(Integer, default=0)
     category = Column(String)
-    media = Column(String)  # JSON list
+    media = Column(String)
 
 
 class User(Base):
@@ -482,8 +483,10 @@ class Order(Base):
 
 Base.metadata.create_all(bind=engine)
 
+
 cart = {}
 otp_store = {}
+
 
 # ========= DB =========
 
@@ -494,21 +497,25 @@ def get_db():
     finally:
         db.close()
 
+
 # ========= SESSION =========
 
 def verify_user(request: Request):
     if not request.cookies.get("user"):
         raise HTTPException(403)
 
+
 def verify_admin(request: Request):
     if request.cookies.get("admin") != "true":
         raise HTTPException(403)
+
 
 # ========= AUTH =========
 
 @app.get("/register", response_class=HTMLResponse)
 def register_page(request: Request):
     return templates.TemplateResponse("register.html", {"request": request})
+
 
 @app.post("/register")
 def register(username: str = Form(...), phone: str = Form(...), password: str = Form(...), db=Depends(get_db)):
@@ -547,7 +554,7 @@ def logout():
     return res
 
 
-# OTP LOGIN
+# ========= OTP =========
 
 @app.post("/send_otp")
 def send_otp(phone: str = Form(...)):
@@ -556,6 +563,7 @@ def send_otp(phone: str = Form(...)):
     print("OTP:", otp)
     return {"msg": "OTP sent"}
 
+
 @app.post("/verify_otp")
 def verify_otp(phone: str = Form(...), otp: str = Form(...)):
     if otp_store.get(phone) == otp:
@@ -563,6 +571,7 @@ def verify_otp(phone: str = Form(...), otp: str = Form(...)):
         res.set_cookie("user", phone)
         return res
     return RedirectResponse("/login", 302)
+
 
 # ========= HOME =========
 
@@ -578,6 +587,7 @@ def home(request: Request, db=Depends(get_db)):
 
     return templates.TemplateResponse("home.html", {"request": request, "products": categories})
 
+
 # ========= CATEGORY =========
 
 @app.get("/category/{cat}", response_class=HTMLResponse)
@@ -591,10 +601,14 @@ def category(request: Request, cat: str, db=Depends(get_db)):
 
     return templates.TemplateResponse("category.html", {"request": request, "items": result, "cat": cat.capitalize()})
 
+
 # ========= CART =========
 
 @app.post("/add_to_cart")
 async def add_to_cart(item: str = Form(...), qty: int = Form(...), price: int = Form(...), image: str = Form(...)):
+
+    if qty <= 0:
+        return {"message": "Invalid quantity"}
 
     if item in cart:
         cart[item]["qty"] += qty
@@ -603,10 +617,12 @@ async def add_to_cart(item: str = Form(...), qty: int = Form(...), price: int = 
 
     return {"message": "Added to cart"}
 
+
 @app.get("/cart", response_class=HTMLResponse)
 def cart_page(request: Request):
     total = sum(v["qty"] * v["price"] for v in cart.values())
     return templates.TemplateResponse("cart.html", {"request": request, "cart": cart, "total": total})
+
 
 # ========= PAYMENT =========
 
@@ -615,6 +631,7 @@ def payment(request: Request):
     total = sum(v["qty"] * v["price"] for v in cart.values())
     return templates.TemplateResponse("payment.html", {"request": request, "cart": cart, "total": total})
 
+
 # ========= BILL PDF =========
 
 class BillPDF(FPDF):
@@ -622,6 +639,7 @@ class BillPDF(FPDF):
         self.set_font("Arial", "B", 18)
         self.cell(0, 10, "PLASTIC HOUSE", ln=True, align="C")
         self.ln(5)
+
 
 def generate_bill(order):
 
@@ -640,7 +658,7 @@ def generate_bill(order):
     pdf.ln(5)
 
     for name, data in items.items():
-        pdf.cell(0, 8, f"{name} x {data['qty']} = Rs. {data['qty']*data['price']}", ln=True)
+        pdf.cell(0, 8, f"{name} x {data['qty']} = Rs. {data['qty'] * data['price']}", ln=True)
 
     pdf.ln(5)
     pdf.cell(0, 10, f"Total Rs. {order.total}", ln=True)
@@ -651,16 +669,36 @@ def generate_bill(order):
     pdf.output(path)
     return path
 
+
 # ========= PLACE ORDER =========
 
 @app.post("/place_order")
-async def place_order(request: Request, shop_name: str = Form(...), customer_name: str = Form(...), phone: str = Form(...), pay: str = Form(...), db=Depends(get_db)):
+async def place_order(
+        request: Request,
+        shop_name: str = Form(...),
+        customer_name: str = Form(...),
+        phone: str = Form(...),
+        pay: str = Form(...),
+        db=Depends(get_db)
+):
 
     username = request.cookies.get("user")
 
     if not cart:
         return RedirectResponse("/cart", 302)
 
+    # ----- STOCK VALIDATION -----
+    for item, data in cart.items():
+
+        product = db.query(Product).filter(Product.name == item).first()
+
+        if not product:
+            raise HTTPException(400, f"{item} not found")
+
+        if product.stock < data["qty"]:
+            raise HTTPException(400, f"{item} has only {product.stock} left")
+
+    # ----- CREATE ORDER -----
     total = sum(v["qty"] * v["price"] for v in cart.values())
 
     order = Order(
@@ -676,34 +714,20 @@ async def place_order(request: Request, shop_name: str = Form(...), customer_nam
 
     db.add(order)
 
-    for item, data in cart.items():
-        p = db.query(Product).filter(Product.name == item).first()
-        if p:
-            p.stock -= data["qty"]
-            p.sold += data["qty"]
-
-   # ---------- STOCK VALIDATION ----------
+    # ----- UPDATE STOCK -----
     for item, data in cart.items():
         product = db.query(Product).filter(Product.name == item).first()
-        if not product:
-            raise HTTPException(400, f"{item} not found")
-            if product.stock < data["qty"]:
-                raise HTTPException(400, f"{item} is out of stock or insufficient quantity")
-
-    # ---------- UPDATE STOCK ----------
-    for item, data in cart.items():
-        product = db.query(Product).filter(Product.name == item).first()
-
         product.stock -= data["qty"]
         product.sold += data["qty"]
 
-
     db.commit()
+    db.refresh(order)
 
     generate_bill(order)
     cart.clear()
 
-    return RedirectResponse("/orders", 302)
+    return RedirectResponse("/my_orders", 302)
+
 
 # ========= CUSTOMER ORDERS =========
 
@@ -711,70 +735,14 @@ async def place_order(request: Request, shop_name: str = Form(...), customer_nam
 def order_history(request: Request, db=Depends(get_db), _: None = Depends(verify_user)):
 
     username = request.cookies.get("user")
-
     orders_db = db.query(Order).filter(Order.username == username).all()
 
-    # Convert JSON items
     orders = []
     for o in orders_db:
-        orders.append({
-            **o.__dict__,
-            "items": json.loads(o.items)
-        })
+        orders.append({**o.__dict__, "items": json.loads(o.items)})
 
-    return templates.TemplateResponse(
-        "order_history.html",
-        {"request": request, "orders": orders}
-    )
+    return templates.TemplateResponse("order_history.html", {"request": request, "orders": orders})
 
-
-# ========= OWNER ORDERS =========
-
-@app.get("/admin/orders", response_class=HTMLResponse)
-def owner_orders(request: Request, db=Depends(get_db), _: None = Depends(verify_admin)):
-
-    pending_db = db.query(Order).filter(Order.status == "Pending").all()
-    delivered_db = db.query(Order).filter(Order.status == "Delivered").all()
-
-    # Convert JSON items → dictionary
-    pending = []
-    for o in pending_db:
-        pending.append({**o.__dict__, "items": json.loads(o.items)})
-
-    delivered = []
-    for o in delivered_db:
-        delivered.append({**o.__dict__, "items": json.loads(o.items)})
-
-    return templates.TemplateResponse(
-        "order_view.html",
-        {"request": request, "pending": pending, "delivered": delivered}
-    )
-
-
-@app.get("/admin/deliver/{oid}")
-def mark_delivered(oid: int, db=Depends(get_db)):
-    order = db.query(Order).filter(Order.id == oid).first()
-    order.status = "Delivered"
-    db.commit()
-    return RedirectResponse("/admin/orders", 302)
-
-# ========= ADMIN PRODUCT UPLOAD =========
-
-@app.post("/admin/upload")
-async def upload_product(name: str = Form(...), price: int = Form(...), stock: int = Form(...), category: str = Form(...), media_files: list[UploadFile] = File(...), db=Depends(get_db), _: None = Depends(verify_admin)):
-
-    media = []
-
-    for file in media_files:
-        path = f"static/images/{file.filename}"
-        with open(path, "wb") as f:
-            f.write(await file.read())
-        media.append(file.filename)
-
-    db.add(Product(name=name, price=price, stock=stock, category=category.lower(), media=json.dumps(media)))
-    db.commit()
-
-    return RedirectResponse("/admin/dashboard", 302)
 
 # ========= ADMIN LOGIN =========
 
@@ -787,11 +755,12 @@ def admin_login_page(request: Request):
 def admin_login(username: str = Form(...), password: str = Form(...)):
 
     if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
-        response = RedirectResponse("/admin/dashboard", status_code=302)
-        response.set_cookie("admin", "true")
-        return response
+        res = RedirectResponse("/admin/dashboard", 302)
+        res.set_cookie("admin", "true")
+        return res
 
-    return RedirectResponse("/admin", status_code=302)
+    return RedirectResponse("/admin", 302)
+
 
 # ========= ADMIN DASHBOARD =========
 
@@ -800,18 +769,12 @@ def admin_dashboard(request: Request, db=Depends(get_db), _: None = Depends(veri
 
     products = db.query(Product).all()
 
-    # Convert media JSON → list
     result = []
     for p in products:
-        result.append({
-            **p.__dict__,
-            "media": json.loads(p.media) if p.media else []
-        })
+        result.append({**p.__dict__, "media": json.loads(p.media) if p.media else []})
 
-    return templates.TemplateResponse(
-        "admin_dashboard.html",
-        {"request": request, "products": result}
-    )
+    return templates.TemplateResponse("admin_dashboard.html", {"request": request, "products": result})
+
 
 # ========= OWNER MANAGEMENT =========
 
@@ -820,10 +783,7 @@ def owners_page(request: Request, db=Depends(get_db), _: None = Depends(verify_a
 
     owners = db.query(Owner).all()
 
-    return templates.TemplateResponse(
-        "owners.html",
-        {"request": request, "owners": owners}
-    )
+    return templates.TemplateResponse("owners.html", {"request": request, "owners": owners})
 
 
 @app.post("/admin/add_owner")
@@ -835,7 +795,7 @@ def add_owner(phone: str = Form(...), db=Depends(get_db)):
     db.add(Owner(phone=phone))
     db.commit()
 
-    return RedirectResponse("/admin/owners", status_code=302)
+    return RedirectResponse("/admin/owners", 302)
 
 
 @app.get("/admin/delete_owner/{oid}")
@@ -847,7 +807,7 @@ def delete_owner(oid: int, db=Depends(get_db)):
         db.delete(owner)
         db.commit()
 
-    return RedirectResponse("/admin/owners", status_code=302)
+    return RedirectResponse("/admin/owners", 302)
 
 
 # ========= DOWNLOAD BILL =========
@@ -855,10 +815,9 @@ def delete_owner(oid: int, db=Depends(get_db)):
 @app.get("/download/{order_id}")
 def download_bill(order_id: int):
 
-    # Find bill file inside static/bills
     for file in os.listdir("static/bills"):
         if file.endswith(f"_{order_id}.pdf"):
-            path = f"static/bills/{file}"
-            return FileResponse(path, filename=file)
+            return FileResponse(f"static/bills/{file}", filename=file)
 
-    raise HTTPException(status_code=404, detail="Bill not found")
+    raise HTTPException(404, "Bill not found")
+
