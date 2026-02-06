@@ -128,15 +128,20 @@ cursor:pointer;
 <input name="category" placeholder="Category" required>
 
 <label style="width:100%;text-align:center;margin-top:10px;">
-Upload Images / Video
+Upload Images / Video or Capture Using Camera
 </label>
 
-<!-- ✅ FIXED NAME HERE -->
-<input type="file" name="media" multiple required>
+<input type="file"
+       name="media_files"
+       accept="image/*,video/*"
+       capture="environment"
+       multiple
+       required>
 
 <button class="place-order-btn">Upload Product</button>
 
 </form>
+
 
 </div>
 
@@ -165,6 +170,12 @@ Rs. {{ products | sum(attribute='sold') * 50 }}
 
 </div>
 
+<form method="get" action="/admin/search" style="text-align:center;margin:20px;">
+<input type="text" name="query" placeholder="Search Product Name" required>
+<button>Search</button>
+<a href="/admin/dashboard">Reset</a>
+</form>
+
 <!-- ===== INVENTORY TABLE ===== -->
 <table class="inventory-table">
 
@@ -175,7 +186,9 @@ Rs. {{ products | sum(attribute='sold') * 50 }}
 <th>Price</th>
 <th>Stock</th>
 <th>Sold</th>
+<th>Edit</th>
 <th>Delete</th>
+
 </tr>
 
 {% for product in products %}
@@ -208,8 +221,22 @@ Rs. {{ products | sum(attribute='sold') * 50 }}
 <td>{{product.sold}}</td>
 
 <td>
+<td>
+<form method="post" action="/admin/update_stock/{{product.id}}">
+<input type="number" name="stock" value="{{product.stock}}" min="0" style="width:70px;">
+<button>Update</button>
+</form>
+</td>
+<td>
+<a href="/admin/edit_product/{{product.id}}">Edit</a>
+</td>
+
+<td>
 <a href="/admin/delete_product/{{product.id}}" class="delete-btn">Delete</a>
 </td>
+
+
+
 
 </tr>
 {% endfor %}

@@ -180,34 +180,57 @@ async def upload_product(
     price: int = Form(...),
     stock: int = Form(...),
     category: str = Form(...),
-    media: list[UploadFile] = File(...),
-    db=Depends(get_db),
-    _: None = Depends(verify_admin)
+    media_files: list[UploadFile] = File(...),
+    db=Depends(get_db)
 ):
 
-    media_files = []
+    saved_files = []
 
-    for file in media:
+    for file in media_files:
         filename = file.filename
-        path = f"static/images/{filename}"
+        filepath = f"static/images/{filename}"
 
-        with open(path, "wb") as f:
-            f.write(await file.read())
+        with open(filepath, "wb") as buffer:
+            buffer.write(await file.read())
 
-        media_files.append(filename)
+        saved_files.append(filename)
 
     product = Product(
         name=name,
         price=price,
         stock=stock,
         category=category.lower(),
-        media=json.dumps(media_files)
+        media=json.dumps(saved_files)
     )
 
     db.add(product)
     db.commit()
 
-    return RedirectResponse("/admin/dashboard", status_code=302)
+    return RedirectResponse("/admin/dashboard", 302)
+
+@app.get("/admin/search")
+def admin_search(query: str, request: Request, db=Depends(get_db), _: None = Depends(verify_admin)):
+
+    products = db.query(Product).filter(Product.name.ilike(f"%{query}%")).all()
+
+    result = []
+    for p in products:
+        result.append({**p.__dict__, "media": json.loads(p.media) if p.media else []})
+
+    return templates.TemplateResponse("admin_dashboard.html",
+                                      {"request": request, "products": result})
+
+@app.post("/admin/update_stock/{pid}")
+def update_stock(pid: int, stock: int = Form(...), db=Depends(get_db), _: None = Depends(verify_admin)):
+
+    product = db.query(Product).filter(Product.id == pid).first()
+
+    if product:
+        product.stock = stock
+        db.commit()
+
+    return RedirectResponse("/admin/dashboard", 302)
+
 
 
 @app.get("/admin/owners", response_class=HTMLResponse)
@@ -277,6 +300,48 @@ def mark_delivered(oid: int, db=Depends(get_db)):
     order.status = "Delivered"
     db.commit()
     return RedirectResponse("/admin/orders", 302)
+
+# ========= EDIT PRODUCT =========
+
+@app.get("/admin/edit_product/{pid}", response_class=HTMLResponse)
+def edit_product_page(pid: int, request: Request, db=Depends(get_db), _: None = Depends(verify_admin)):
+
+    product = db.query(Product).filter(Product.id == pid).first()
+
+    return templates.TemplateResponse(
+        "edit_product.html",
+        {
+            "request": request,
+            "product": product
+        }
+    )
+
+
+@app.post("/admin/update_product/{pid}")
+async def update_product(
+    pid: int,
+    name: str = Form(...),
+    price: int = Form(...),
+    stock: int = Form(...),
+    category: str = Form(...),
+    db=Depends(get_db),
+    _: None = Depends(verify_admin)
+):
+
+    product = db.query(Product).filter(Product.id == pid).first()
+
+    if product:
+        product.name = name
+        product.price = price
+        product.stock = stock
+        product.category = category.lower()
+
+        # SOLD NOT EDITABLE
+
+        db.commit()
+
+    return RedirectResponse("/admin/dashboard", 302)
+
 
 # ========= LANDING PAGE =========
 
@@ -487,6 +552,19 @@ def generate_bill(order):
     pdf.output(path)
     return path
 
+@app.get("/search", response_class=HTMLResponse)
+def customer_search(query: str, request: Request, db=Depends(get_db), _: None = Depends(verify_user)):
+
+    products = db.query(Product).filter(Product.name.ilike(f"%{query}%")).all()
+
+    result = []
+    for p in products:
+        result.append({**p.__dict__, "media": json.loads(p.media) if p.media else []})
+
+    return templates.TemplateResponse("category.html",
+                                      {"request": request,
+                                       "items": result,
+                                       "cat": f"Search Results for '{query}'"})
 
 # ========= PLACE ORDER =========
 

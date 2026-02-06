@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Edit Product</title>
+<link rel="stylesheet" href="/static/style.css">
+
+<style>
+
+.edit-card{
+width:400px;
+margin:60px auto;
+background:white;
+padding:30px;
+border-radius:15px;
+box-shadow:0 0 15px rgba(0,0,0,0.1);
+text-align:center;
+}
+
+.edit-card input{
+width:100%;
+padding:10px;
+margin:8px 0;
+border-radius:8px;
+border:1px solid #ccc;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="edit-card">
+
+<h2>Edit Product</h2>
+
+<form method="post" action="/admin/update_product/{{product.id}}">
+
+<input name="name" value="{{product.name}}" required>
+
+<input name="price" type="number" value="{{product.price}}" required>
+
+<input name="stock" type="number" value="{{product.stock}}" required>
+
+<input name="category" value="{{product.category}}" required>
+
+<input value="Sold: {{product.sold}}" disabled>
+
+<button>Update Product</button>
+
+</form>
+
+<br>
+<a href="/admin/dashboard">Back</a>
+
+</div>
+
+</body>
+</html>
