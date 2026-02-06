@@ -13,6 +13,7 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 
 from fpdf import FPDF
 
+
 # ========= CONFIG =========
 
 ADMIN_USERNAME = "admin"
@@ -37,6 +38,7 @@ os.makedirs("static/bills", exist_ok=True)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
+
 # ========= DATABASE =========
 
 DATABASE_URL = "sqlite:///./database.db"
@@ -44,6 +46,7 @@ DATABASE_URL = "sqlite:///./database.db"
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(bind=engine)
 Base = declarative_base()
+
 
 # ========= MODELS =========
 
@@ -106,6 +109,7 @@ def get_db():
         db.close()
 
 # ========= AUTH HELPERS =========
+
 
 def verify_admin(request: Request):
     if request.cookies.get("admin") != "true":
@@ -333,6 +337,7 @@ def logout():
 
 
 
+
 # ========= HOME =========
 
 @app.get("/", response_class=HTMLResponse)
@@ -412,6 +417,7 @@ async def add_to_cart(request: Request, item: str = Form(...), qty: int = Form(.
 
     return {"message": "Added to cart"}
 
+
 @app.get("/cart", response_class=HTMLResponse)
 def cart_page(request: Request, _: None = Depends(verify_user)):
 
@@ -460,6 +466,7 @@ class BillPDF(FPDF):
         self.cell(0, 10, "PLASTIC HOUSE", ln=True, align="C")
         self.ln(5)
 
+
 def generate_bill(order):
 
     pdf = BillPDF()
@@ -470,7 +477,7 @@ def generate_bill(order):
     pdf.set_font("Arial", size=12)
 
     for name, data in items.items():
-        pdf.cell(0, 8, f"{name} x {data['qty']} = Rs. {data['qty']*data['price']}", ln=True)
+        pdf.cell(0, 8, f"{name} x {data['qty']} = Rs. {data['qty'] * data['price']}", ln=True)
 
     pdf.cell(0, 10, f"Total Rs. {order.total}", ln=True)
 
@@ -479,6 +486,7 @@ def generate_bill(order):
 
     pdf.output(path)
     return path
+
 
 # ========= PLACE ORDER =========
 
@@ -523,6 +531,7 @@ async def place_order(request: Request, shop_name: str = Form(...),
 
     db.commit()
     db.refresh(order)
+    db.refresh(order)
 
     generate_bill(order)
 
@@ -536,15 +545,11 @@ async def place_order(request: Request, shop_name: str = Form(...),
 def order_history(request: Request, db=Depends(get_db), _: None = Depends(verify_user)):
 
     username = request.cookies.get("user")
-
     orders_db = db.query(Order).filter(Order.username == username).all()
 
     orders = []
     for o in orders_db:
-        orders.append({
-            **o.__dict__,
-            "items": json.loads(o.items)
-        })
+        orders.append({**o.__dict__, "items": json.loads(o.items)})
 
     return templates.TemplateResponse("order_history.html",
                                       {"request": request, "orders": orders})
