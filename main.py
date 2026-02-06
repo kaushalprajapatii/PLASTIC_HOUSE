@@ -682,6 +682,22 @@ async def place_order(request: Request, shop_name: str = Form(...), customer_nam
             p.stock -= data["qty"]
             p.sold += data["qty"]
 
+   # ---------- STOCK VALIDATION ----------
+    for item, data in cart.items():
+        product = db.query(Product).filter(Product.name == item).first()
+        if not product:
+            raise HTTPException(400, f"{item} not found")
+            if product.stock < data["qty"]:
+                raise HTTPException(400, f"{item} is out of stock or insufficient quantity")
+
+    # ---------- UPDATE STOCK ----------
+    for item, data in cart.items():
+        product = db.query(Product).filter(Product.name == item).first()
+
+        product.stock -= data["qty"]
+        product.sold += data["qty"]
+
+
     db.commit()
 
     generate_bill(order)
