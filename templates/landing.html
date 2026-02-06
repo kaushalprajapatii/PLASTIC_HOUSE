@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Plastic House Wholesale</title>
+<link rel="stylesheet" href="/static/style.css">
+
+<style>
+
+body{
+margin:0;
+font-family:Arial, Helvetica, sans-serif;
+background:linear-gradient(to right,#eef2f7,#d9e4f5);
+}
+
+/* ===== BRAND TITLE ===== */
+
+.brand-title{
+text-align:center;
+font-size:60px;
+font-weight:900;
+letter-spacing:3px;
+margin-top:40px;
+color:#1f2d3d;
+}
+
+.brand-sub{
+text-align:center;
+font-size:18px;
+color:#555;
+margin-bottom:40px;
+}
+
+/* ===== CARD CONTAINER ===== */
+
+.landing-wrapper{
+display:flex;
+justify-content:center;
+gap:40px;
+flex-wrap:wrap;
+padding:20px;
+}
+
+/* ===== ROLE CARD ===== */
+
+.role-card{
+width:260px;
+background:white;
+padding:35px;
+border-radius:18px;
+box-shadow:0 8px 25px rgba(0,0,0,0.15);
+text-align:center;
+transition:0.3s;
+cursor:pointer;
+}
+
+.role-card:hover{
+transform:translateY(-8px);
+}
+
+/* ===== CARD ICON ===== */
+
+.role-icon{
+font-size:60px;
+margin-bottom:15px;
+}
+
+/* ===== CARD TITLE ===== */
+
+.role-title{
+font-size:22px;
+font-weight:bold;
+margin-bottom:10px;
+}
+
+/* ===== CARD BUTTON ===== */
+
+.role-btn{
+display:inline-block;
+margin-top:15px;
+padding:12px 22px;
+border-radius:10px;
+text-decoration:none;
+font-weight:bold;
+color:black;
+background:linear-gradient(90deg,#fbd72b,#00c6ff);
+transition:0.3s;
+}
+
+.role-btn:hover{
+transform:scale(1.05);
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- ===== BRAND HEADER ===== -->
+
+<div class="brand-title">
+PLASTIC HOUSE
+</div>
+
+<div class="brand-sub">
+Wholesale Store Management Platform
+</div>
+
+<!-- ===== ROLE SELECTION ===== -->
+
+<div class="landing-wrapper">
+
+<!-- OWNER CARD -->
+<div class="role-card">
+<div class="role-icon">🏪</div>
+<div class="role-title">Owner</div>
+<a href="/admin" class="role-btn">Owner Login</a>
+</div>
+
+<!-- CUSTOMER CARD -->
+<div class="role-card">
+<div class="role-icon">🛒</div>
+<div class="role-title">Customer</div>
+<a href="/login" class="role-btn">Customer Login</a>
+</div>
+
+</div>
+
+</body>
+</html>

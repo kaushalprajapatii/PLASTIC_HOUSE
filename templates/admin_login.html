@@ -1,62 +1,95 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Admin Login - Plastic House</title>
+<title>Admin Login</title>
 <link rel="stylesheet" href="/static/style.css">
+
+<style>
+
+.auth-wrapper{
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+background:linear-gradient(to right,#f7f8fa,#e3e9f0);
+}
+
+.auth-card{
+background:white;
+padding:40px;
+width:350px;
+border-radius:15px;
+box-shadow:0 8px 25px rgba(0,0,0,0.15);
+text-align:center;
+}
+
+.auth-title{
+font-size:22px;
+font-weight:bold;
+margin-bottom:20px;
+}
+
+.auth-card input{
+width:100%;
+padding:12px;
+margin:10px 0;
+border-radius:10px;
+border:1px solid #ccc;
+font-size:15px;
+}
+
+.auth-card button{
+width:100%;
+padding:12px;
+margin-top:15px;
+border:none;
+border-radius:10px;
+font-size:16px;
+font-weight:bold;
+cursor:pointer;
+background:linear-gradient(90deg,#fbd72b,#00c6ff);
+transition:0.3s;
+}
+
+.auth-card button:hover{
+transform:scale(1.03);
+}
+
+.back-link{
+margin-top:15px;
+display:block;
+font-size:14px;
+}
+
+</style>
+
 </head>
 
-<body class="admin-bg">
+<body>
 
-<!-- Top Navigation -->
-<div class="topbar">
-<h2>PLASTIC HOUSE</h2>
-<a href="/">Home</a>
+<div class="auth-wrapper">
+
+<div class="auth-card">
+
+<div class="auth-title">
+OWNER ADMIN LOGIN
 </div>
 
-<div class="admin-card">
+<form method="post" action="/admin_login">
 
-<h2>Admin Panel Login</h2>
-<p class="admin-subtitle">Owner / Manager Access</p>
+<input name="username" placeholder="Admin Username" required>
 
-<form method="post" action="/admin_login" class="admin-login-form">
+<input name="password" type="password" placeholder="Password" required>
 
-<input 
-name="username" 
-placeholder="Admin Username" 
-class="phone-input"
-required>
-
-<div class="password-box">
-
-<input 
-name="password" 
-type="password" 
-placeholder="Password" 
-id="adminPass"
-class="phone-input"
-required>
-
-<span onclick="togglePass()">👁</span>
-
-</div>
-
-<button class="place-order-btn">Login</button>
+<button>Login</button>
 
 </form>
 
+<a href="/start" class="back-link">← Back</a>
+
 </div>
 
-<script>
-function togglePass(){
-let p = document.getElementById("adminPass")
-
-if(p.type === "password"){
-p.type = "text"
-}else{
-p.type = "password"
-}
-}
-</script>
+</div>
 
 </body>
 </html>

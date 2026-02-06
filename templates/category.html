@@ -1,22 +1,87 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>{{cat}} - Wholesale Store</title>
+<title>{{cat}}</title>
 <link rel="stylesheet" href="/static/style.css">
-<script src="/static/script.js"></script>
+
+<style>
+
+.product-grid{
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+gap:25px;
+padding:20px;
+}
+
+.product-card{
+width:220px;
+background:white;
+border-radius:15px;
+box-shadow:0 0 12px rgba(0,0,0,0.1);
+padding:15px;
+text-align:center;
+transition:0.3s;
+}
+
+.product-card:hover{
+transform:scale(1.03);
+}
+
+.product-image{
+width:100%;
+height:150px;
+object-fit:cover;
+border-radius:10px;
+cursor:pointer;
+}
+
+.product-title{
+font-weight:bold;
+margin-top:10px;
+}
+
+.product-price{
+color:#2c7be5;
+font-weight:bold;
+}
+
+.preview-btn{
+margin-top:8px;
+}
+
+.img-modal{
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.8);
+justify-content:center;
+align-items:center;
+z-index:999;
+}
+
+#mediaContainer{
+display:flex;
+flex-direction:column;
+gap:15px;
+align-items:center;
+}
+
+</style>
+
 </head>
 
 <body>
 
-<!-- NAVBAR -->
 <div class="topbar">
-<a href="/">Home</a>
+<a href="/home">Home</a>
 <a href="/cart">Cart</a>
 </div>
 
-<h2 style="text-align:center;margin-top:20px;">
-{{cat}} Wholesale Items
-</h2>
+<h2 style="text-align:center">{{cat}}</h2>
 
 <div class="product-grid">
 
@@ -24,70 +89,53 @@
 
 <div class="product-card">
 
-<!-- ===== MEDIA DISPLAY ===== -->
-{% if item.media %}
-
-{% for media in item.media %}
-
-{% if media.endswith(".mp4") %}
-
-<video class="product-img" controls>
-<source src="/static/images/{{media}}">
-</video>
-
-{% else %}
-
-<img 
-src="/static/images/{{media}}" 
-class="product-img"
-onclick="openPreview(this.src)"
->
-
+<!-- Thumbnail -->
+{% if item.media and item.media|length > 0 %}
+<img src="/static/images/{{item.media[0]}}"
+     class="product-image"
+     data-media='{{ item.media | tojson | safe }}'
+     onclick="openPreview(this)">
 {% endif %}
 
-{% endfor %}
+<div class="product-title">{{item.name}}</div>
 
-{% endif %}
+<div class="product-price">₹ {{item.price}}</div>
 
-<h4>{{item.name}}</h4>
+<div style="color:gray;font-size:14px;">
+Available : {{item.stock}}
+</div>
 
-<p>Price : Rs. {{item.price}}</p>
 
-<!-- STOCK STATUS -->
-{% if item.stock > 0 %}
-<p class="stock-green">Available : {{item.stock}}</p>
-{% else %}
-<p class="stock-red">Out of Stock</p>
-{% endif %}
 
-<!-- QUANTITY -->
-<input 
-type="number"
-id="qty{{loop.index}}"
-value="0"
-min="0"
-max="{{item.stock}}"
-class="qty-input"
->
+<form method="post" action="/add_to_cart">
+<input type="hidden" name="item" value="{{item.name}}">
+<input type="hidden" name="price" value="{{item.price}}">
+<input type="hidden" name="image"
+value="{{ item.media[0] if item.media and item.media|length > 0 else '' }}">
 
-<!-- ADD TO CART -->
-{% if item.stock > 0 %}
+<input type="number"
+       name="qty"
+       id="qty_{{item.id}}"
+       value="0"
+       min="0"
+       max="{{item.stock}}">
 
-<button 
-class="add-btn"
-data-name="{{item.name}}"
-data-price="{{item.price}}"
-data-image="{{item.media[0] if item.media else ''}}"
-data-id="qty{{loop.index}}"
-onclick="addCart(this)">
+<button onclick="addCart(this)"
+        data-name="{{item.name}}"
+        data-price="{{item.price}}"
+        data-image="{{ item.media[0] if item.media and item.media|length > 0 else '' }}"
+        data-id="qty_{{item.id}}"
+        data-stock="{{item.stock}}">
 Add To Cart
 </button>
+   
+</form>
 
-{% else %}
-<button class="add-btn" disabled>
-Out Of Stock
+<button class="preview-btn"
+        data-media='{{ item.media | tojson | safe }}'
+        onclick="openPreview(this)">
+Preview
 </button>
-{% endif %}
 
 </div>
 
@@ -95,13 +143,49 @@ Out Of Stock
 
 </div>
 
-<!-- IMAGE MODAL -->
-<div id="imgModal" class="img-modal" onclick="closePreview()">
-<span class="close-modal">✖</span>
-<img id="modalImg">
+<!-- ===== MEDIA MODAL ===== -->
+<div id="mediaModal" class="img-modal" onclick="closePreview()">
+<div id="mediaContainer"></div>
 </div>
 
-<div id="popup" class="popup"></div>
+<script>
+
+function openPreview(element){
+
+let mediaList = JSON.parse(element.getAttribute("data-media"))
+
+let modal = document.getElementById("mediaModal")
+let container = document.getElementById("mediaContainer")
+
+container.innerHTML = ""
+
+mediaList.forEach(file => {
+
+if(file.endsWith(".mp4")){
+
+container.innerHTML += `
+<video controls style="max-width:90%">
+<source src="/static/images/${file}">
+</video>
+`
+
+}else{
+
+container.innerHTML += `
+<img src="/static/images/${file}" style="max-width:90%">
+`
+}
+
+})
+
+modal.style.display="flex"
+}
+
+function closePreview(){
+document.getElementById("mediaModal").style.display="none"
+}
+
+</script>
 
 </body>
 </html>

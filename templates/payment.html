@@ -6,8 +6,6 @@
 
 <style>
 
-/* ===== ORDER SUMMARY STYLE ===== */
-
 .summary-item{
 display:flex;
 align-items:center;
@@ -51,14 +49,14 @@ margin-top:10px;
 <script>
 
 function toggleUPI(){
-    let upiBox = document.getElementById("upiBox")
-    let upiRadio = document.getElementById("upiRadio")
+let upiBox = document.getElementById("upiBox")
+let upiRadio = document.getElementById("upiRadio")
 
-    if(upiRadio.checked){
-        upiBox.style.display="block"
-    }else{
-        upiBox.style.display="none"
-    }
+if(upiRadio.checked){
+upiBox.style.display="block"
+}else{
+upiBox.style.display="none"
+}
 }
 
 </script>
@@ -74,21 +72,16 @@ function toggleUPI(){
 
 <div class="payment-wrapper">
 
-<!-- ===== ORDER SUMMARY ===== -->
+<!-- ORDER SUMMARY -->
 <div class="bill-card">
 
 <h2>Wholesale Order Summary</h2>
 
-{% set total_items = 0 %}
-
 {% for k,v in cart.items() %}
-
-{% set total_items = total_items + v.qty %}
 
 <div class="summary-item">
 
 <div class="summary-left">
-
 <img src="/static/images/{{v.image}}" class="summary-img">
 
 <div>
@@ -113,7 +106,7 @@ Grand Total : ₹{{total}}
 
 </div>
 
-<!-- ===== PAYMENT FORM ===== -->
+<!-- PAYMENT FORM -->
 <div class="payment-card">
 
 <h2>Shopkeeper Details</h2>
@@ -144,13 +137,8 @@ UPI Payment
 </label>
 </div>
 
-<!-- UPI Instructions -->
 <div id="upiBox" class="upi-info">
-
-<p><strong>UPI Payment Instructions:</strong></p>
-<p>Scan shop QR or pay using registered UPI ID.</p>
-<p>Order will be marked as Paid in invoice.</p>
-
+Scan QR or pay via UPI
 </div>
 
 </div>

@@ -3,30 +3,65 @@
 <head>
 <title>Register</title>
 <link rel="stylesheet" href="/static/style.css">
+
+<style>
+
+.auth-container{
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+
+.auth-card{
+background:white;
+padding:40px;
+width:350px;
+border-radius:15px;
+box-shadow:0 0 20px rgba(0,0,0,0.15);
+text-align:center;
+}
+
+.auth-card input{
+width:100%;
+padding:12px;
+margin:8px 0;
+border-radius:8px;
+border:1px solid #ccc;
+}
+
+.auth-card button{
+width:100%;
+margin-top:10px;
+}
+
+</style>
+
 </head>
 
-<body class="admin-bg">
+<body>
 
-<div class="admin-card">
+<div class="auth-container">
 
-<h2>Create Account</h2>
+<div class="auth-card">
+
+<h2>Customer Registration</h2>
 
 <form method="post" action="/register">
 
 <input name="username" placeholder="Username" required>
-
 <input name="phone" placeholder="Phone Number" required>
-
 <input name="password" type="password" placeholder="Password" required>
 
-<button>Create Account</button>
+<button>Register</button>
 
 </form>
 
-<p style="margin-top:10px;">
-Already have account?
-<a href="/login">Login</a>
-</p>
+<br>
+
+<a href="/login">Already have account? Login</a>
+
+</div>
 
 </div>
 

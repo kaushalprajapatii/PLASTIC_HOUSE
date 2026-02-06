@@ -3,34 +3,79 @@
 <head>
 <title>Login</title>
 <link rel="stylesheet" href="/static/style.css">
-<script src="/static/script.js"></script>
+
+<style>
+
+.auth-container{
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+
+.auth-card{
+background:white;
+padding:40px;
+width:350px;
+border-radius:15px;
+box-shadow:0 0 20px rgba(0,0,0,0.15);
+text-align:center;
+}
+
+.auth-title{
+font-size:22px;
+font-weight:bold;
+margin-bottom:25px;
+}
+
+.auth-card input{
+width:100%;
+padding:12px;
+margin:8px 0;
+border-radius:8px;
+border:1px solid #ccc;
+}
+
+.auth-card button{
+width:100%;
+margin-top:10px;
+}
+
+.divider{
+margin:20px 0;
+border-top:1px solid #ddd;
+}
+
+</style>
+
 </head>
 
-<body class="admin-bg">
+<body>
 
-<div class="admin-card">
+<div class="auth-container">
 
-<h2>Login</h2>
+<div class="auth-card">
 
-<!-- USERNAME LOGIN -->
+<div class="auth-title">
+WELCOME TO PLASTIC HOUSE WHOLESALE
+</div>
+
+<!-- PASSWORD LOGIN -->
 <form method="post" action="/login">
 
 <input name="username" placeholder="Username" required>
-
 <input name="password" type="password" placeholder="Password" required>
 
-<button>Login</button>
+<button>Login With Password</button>
 
 </form>
 
-<hr style="margin:20px 0;">
+<div class="divider"></div>
 
-<h3>Login With OTP</h3>
-
+<!-- OTP LOGIN -->
 <form method="post" action="/send_otp">
 
-<input name="phone" placeholder="Phone Number" required>
-
+<input name="phone" placeholder="Registered Phone Number" required>
 <button>Send OTP</button>
 
 </form>
@@ -44,10 +89,12 @@
 
 </form>
 
-<p style="margin-top:10px;">
-New user?
+<div style="margin-top:15px;">
+New User?
 <a href="/register">Register</a>
-</p>
+</div>
+
+</div>
 
 </div>
 
