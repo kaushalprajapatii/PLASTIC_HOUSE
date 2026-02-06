@@ -128,15 +128,20 @@ cursor:pointer;
 <input name="category" placeholder="Category" required>
 
 <label style="width:100%;text-align:center;margin-top:10px;">
-Upload Images / Video
+Upload Images / Video or Capture Using Camera
 </label>
 
-<!-- ✅ FIXED NAME HERE -->
-<input type="file" name="media" multiple required>
+<input type="file"
+       name="media_files"
+       accept="image/*,video/*"
+       capture="environment"
+       multiple
+       required>
 
 <button class="place-order-btn">Upload Product</button>
 
 </form>
+
 
 </div>
 
