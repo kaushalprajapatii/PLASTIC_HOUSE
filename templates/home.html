@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Plastic House Wholesale Store</title>
+<link rel="stylesheet" href="/static/style.css">
+
+<style>
+
+/* ===== HERO SECTION ===== */
+
+.hero{
+text-align:center;
+padding:35px 10px;
+background:#f4f4f4;
+margin-bottom:20px;
+}
+
+.hero h1{
+margin-bottom:10px;
+}
+
+.hero p{
+color:#555;
+font-size:16px;
+}
+
+/* ===== CATEGORY GRID ===== */
+
+.category-grid{
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+gap:25px;
+padding:20px;
+}
+
+.category-card{
+width:180px;
+background:white;
+padding:22px;
+border-radius:12px;
+box-shadow:0 0 10px rgba(0,0,0,0.1);
+text-align:center;
+transition:0.3s;
+text-decoration:none;
+color:black;
+}
+
+.category-card:hover{
+transform:scale(1.05);
+}
+
+.category-icon{
+font-size:40px;
+margin-bottom:10px;
+}
+
+.category-name{
+font-weight:bold;
+font-size:18px;
+}
+
+/* ===== USER PANEL ===== */
+
+.user-panel{
+display:flex;
+gap:10px;
+align-items:center;
+}
+
+.user-btn{
+background:white;
+padding:8px 14px;
+border-radius:8px;
+text-decoration:none;
+color:black;
+font-size:14px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- ===== NAVBAR ===== -->
+<div class="topbar">
+
+<h2>PLASTIC HOUSE</h2>
+
+<div class="user-panel">
+
+<a href="/cart" class="user-btn">🛒 Cart</a>
+
+{% if request.cookies.get("user") %}
+
+<a href="/my_orders" class="user-btn">📜 My Orders</a>
+<a href="/logout" class="user-btn">Logout</a>
+
+{% else %}
+
+<a href="/login" class="user-btn">Login</a>
+<a href="/register" class="user-btn">Register</a>
+
+{% endif %}
+
+</div>
+
+</div>
+
+<!-- ===== HERO SECTION ===== -->
+<div class="hero">
+
+<h1>Wholesale Plastic & Gift Store</h1>
+
+<p>
+Bulk ordering platform for shopkeepers and retailers.
+</p>
+
+</div>
+
+<!-- ===== CATEGORY DISPLAY ===== -->
+<div class="category-grid">
+
+{% for cat in products.keys() %}
+
+<a href="/category/{{cat.lower()}}" class="category-card">
+
+<div class="category-icon">📦</div>
+
+<div class="category-name">
+{{cat}}
+</div>
+
+</a>
+
+{% endfor %}
+
+</div>
+
+</body>
+</html>

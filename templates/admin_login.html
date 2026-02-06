@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin Login - Plastic House</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body class="admin-bg">
+
+<!-- Top Navigation -->
+<div class="topbar">
+<h2>PLASTIC HOUSE</h2>
+<a href="/">Home</a>
+</div>
+
+<div class="admin-card">
+
+<h2>Admin Panel Login</h2>
+<p class="admin-subtitle">Owner / Manager Access</p>
+
+<form method="post" action="/admin_login" class="admin-login-form">
+
+<input 
+name="username" 
+placeholder="Admin Username" 
+class="phone-input"
+required>
+
+<div class="password-box">
+
+<input 
+name="password" 
+type="password" 
+placeholder="Password" 
+id="adminPass"
+class="phone-input"
+required>
+
+<span onclick="togglePass()">👁</span>
+
+</div>
+
+<button class="place-order-btn">Login</button>
+
+</form>
+
+</div>
+
+<script>
+function togglePass(){
+let p = document.getElementById("adminPass")
+
+if(p.type === "password"){
+p.type = "text"
+}else{
+p.type = "password"
+}
+}
+</script>
+
+</body>
+</html>

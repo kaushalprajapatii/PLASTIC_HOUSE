@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>My Orders</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<div class="topbar">
+<h2>My Orders</h2>
+<a href="/">Home</a>
+</div>
+
+<div class="payment-wrapper">
+
+{% for order in orders %}
+
+<div class="bill-card">
+
+<h3>Order ID : {{order.id}}</h3>
+
+<p>Shop : {{order.shop_name}}</p>
+<p>Customer : {{order.customer_name}}</p>
+<p>Phone : {{order.phone}}</p>
+<p>Payment : {{order.payment_mode}}</p>
+<p>Status : {{order.status}}</p>
+<p>Date : {{order.timestamp}}</p>
+
+<hr>
+
+<!-- SAFE LOOP -->
+{% for k,v in order["items"].items() %}
+<div class="bill-item">
+<span>{{k}} x {{v.qty}}</span>
+<span>Rs. {{v.qty * v.price}}</span>
+</div>
+{% endfor %}
+
+<div class="bill-total">
+Total Rs. {{order.total}}
+</div>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+</body>
+</html>

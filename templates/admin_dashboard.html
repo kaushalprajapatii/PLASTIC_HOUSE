@@ -1,0 +1,252 @@
+<!-- <!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<div class="topbar">
+<a href="/">Home</a>
+<a href="/admin/owners">Owner Numbers</a>
+</div>
+
+<h2 class="admin-title">Admin Dashboard</h2>
+
+<div class="admin-panel">
+
+<form method="post" action="/admin/upload" enctype="multipart/form-data" class="upload-form">
+
+<input name="name" placeholder="Product Name" required>
+<input name="price" type="number" required>
+<input name="stock" type="number" required>
+<input name="category" placeholder="Category" required>
+<input type="file" name="image" required>
+
+<button>Upload</button>
+
+</form>
+
+</div>
+
+</body>
+</html> -->
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin Dashboard</title>
+<link rel="stylesheet" href="/static/style.css">
+
+<style>
+
+/* ===== MEDIA GALLERY ===== */
+
+.media-box{
+display:flex;
+gap:6px;
+flex-wrap:wrap;
+justify-content:center;
+}
+
+.product-thumb{
+width:60px;
+height:60px;
+object-fit:cover;
+border-radius:6px;
+cursor:pointer;
+transition:0.3s;
+}
+
+.product-thumb:hover{
+transform:scale(1.2);
+}
+
+.analytics-box{
+display:flex;
+justify-content:center;
+gap:30px;
+margin-top:20px;
+flex-wrap:wrap;
+}
+
+.analytics-card{
+background:white;
+padding:20px;
+border-radius:12px;
+box-shadow:0 0 10px rgba(0,0,0,0.1);
+font-weight:bold;
+min-width:160px;
+text-align:center;
+}
+
+.inventory-table{
+width:95%;
+margin:30px auto;
+border-collapse:collapse;
+background:white;
+box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+.inventory-table th,
+.inventory-table td{
+border:1px solid #ddd;
+padding:10px;
+text-align:center;
+}
+
+.inventory-table th{
+background:#f2f2f2;
+}
+
+.delete-btn{
+color:red;
+text-decoration:none;
+font-weight:bold;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- ===== NAVBAR ===== -->
+<div class="topbar">
+<h2>PLASTIC HOUSE ADMIN</h2>
+<a href="/">Home</a>
+<a href="/admin/orders">Orders</a>
+<a href="/admin/owners">Owner Numbers</a>
+</div>
+
+<h2 class="admin-title">Wholesale Inventory Dashboard</h2>
+
+<!-- ===== PRODUCT UPLOAD ===== -->
+<div class="admin-panel">
+
+<form method="post" action="/admin/upload" enctype="multipart/form-data" class="upload-form">
+
+<input name="name" placeholder="Product Name" required>
+<input name="price" type="number" placeholder="Price" required>
+<input name="stock" type="number" placeholder="Stock Quantity" required>
+<input name="category" placeholder="Category" required>
+
+<label style="width:100%;text-align:center;margin-top:10px;">
+Upload Images / Video
+</label>
+
+<input type="file" name="media_files" multiple required>
+
+<button class="place-order-btn">Upload Product</button>
+
+</form>
+
+</div>
+
+<!-- ===== ANALYTICS ===== -->
+<div class="analytics-box">
+
+<div class="analytics-card">
+Total Products <br>
+{{ products|length }}
+</div>
+
+<div class="analytics-card">
+Total Stock <br>
+{{ products | sum(attribute='stock') }}
+</div>
+
+<div class="analytics-card">
+Total Sold <br>
+{{ products | sum(attribute='sold') }}
+</div>
+
+<div class="analytics-card">
+Estimated Revenue <br>
+Rs. {{ products | sum(attribute='sold') * 50 }}
+</div>
+
+</div>
+
+<!-- ===== INVENTORY TABLE ===== -->
+<table class="inventory-table">
+
+<tr>
+<th>Media</th>
+<th>Name</th>
+<th>Category</th>
+<th>Price</th>
+<th>Stock</th>
+<th>Sold</th>
+<th>Delete</th>
+</tr>
+
+{% for product in products %}
+<tr>
+
+<td>
+
+<div class="media-box">
+
+{% if product.media %}
+{% for m in product.media %}
+    {% if m.endswith(".mp4") %}
+        <video class="product-thumb" controls>
+            <source src="/static/images/{{m}}">
+        </video>
+    {% else %}
+        <img src="/static/images/{{m}}" class="product-thumb" onclick="openPreview(this.src)">
+    {% endif %}
+{% endfor %}
+{% endif %}
+
+</div>
+
+</td>
+
+<td>{{product.name}}</td>
+
+<td>{{product.category.capitalize()}}</td>
+
+<td>Rs. {{product.price}}</td>
+
+<td>{{product.stock}}</td>
+
+<td>{{product.sold}}</td>
+
+<td>
+<a href="/admin/delete_product/{{product.id}}" class="delete-btn">Delete</a>
+</td>
+
+</tr>
+{% endfor %}
+
+</table>
+
+<!-- IMAGE MODAL -->
+<div id="imgModal" class="img-modal" onclick="closePreview()">
+<span class="close-modal">✖</span>
+<img id="modalImg">
+</div>
+
+<script>
+
+function openPreview(src){
+let modal = document.getElementById("imgModal")
+let img = document.getElementById("modalImg")
+modal.style.display="flex"
+img.src = src
+}
+
+function closePreview(){
+document.getElementById("imgModal").style.display="none"
+}
+
+</script>
+
+</body>
+</html>

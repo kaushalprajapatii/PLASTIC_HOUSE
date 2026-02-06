@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<div class="topbar">
+<a href="/admin/dashboard">Dashboard</a>
+<a href="/">Home</a>
+</div>
+
+<h2 style="text-align:center;">Owner WhatsApp Numbers</h2>
+
+<form method="post" action="/admin/add_owner" style="text-align:center;margin:20px;">
+<input name="phone" placeholder="Enter Owner Phone" required>
+<button>Add Number</button>
+</form>
+
+<table>
+
+<tr>
+<th>Phone</th>
+<th>Delete</th>
+</tr>
+
+{% for o in owners %}
+<tr>
+<td>{{o.phone}}</td>
+<td><a href="/admin/delete_owner/{{o.id}}">❌</a></td>
+</tr>
+{% endfor %}
+
+</table>
+
+</body>
+</html>

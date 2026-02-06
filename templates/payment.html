@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Wholesale Checkout</title>
+<link rel="stylesheet" href="/static/style.css">
+
+<style>
+
+/* ===== ORDER SUMMARY STYLE ===== */
+
+.summary-item{
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:10px;
+border-bottom:1px solid #eee;
+}
+
+.summary-left{
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+.summary-img{
+width:50px;
+height:50px;
+object-fit:cover;
+border-radius:6px;
+}
+
+.payment-box{
+margin-top:20px;
+}
+
+.radio-row{
+margin:8px 0;
+font-weight:bold;
+}
+
+.upi-info{
+display:none;
+background:#f7f7f7;
+padding:10px;
+border-radius:8px;
+margin-top:10px;
+}
+
+</style>
+
+<script>
+
+function toggleUPI(){
+    let upiBox = document.getElementById("upiBox")
+    let upiRadio = document.getElementById("upiRadio")
+
+    if(upiRadio.checked){
+        upiBox.style.display="block"
+    }else{
+        upiBox.style.display="none"
+    }
+}
+
+</script>
+
+</head>
+
+<body>
+
+<div class="topbar">
+<a href="/">Home</a>
+<a href="/cart">Cart</a>
+</div>
+
+<div class="payment-wrapper">
+
+<!-- ===== ORDER SUMMARY ===== -->
+<div class="bill-card">
+
+<h2>Wholesale Order Summary</h2>
+
+{% set total_items = 0 %}
+
+{% for k,v in cart.items() %}
+
+{% set total_items = total_items + v.qty %}
+
+<div class="summary-item">
+
+<div class="summary-left">
+
+<img src="/static/images/{{v.image}}" class="summary-img">
+
+<div>
+<strong>{{k}}</strong><br>
+Qty : {{v.qty}} | Price : ₹{{v.price}}
+</div>
+
+</div>
+
+<div>
+₹{{v.qty * v.price}}
+</div>
+
+</div>
+
+{% endfor %}
+
+<div class="bill-total">
+Total Items : {{total_items}} <br>
+Grand Total : ₹{{total}}
+</div>
+
+</div>
+
+<!-- ===== PAYMENT FORM ===== -->
+<div class="payment-card">
+
+<h2>Shopkeeper Details</h2>
+
+<form action="/place_order" method="post">
+
+<input name="shop_name" class="phone-input" placeholder="Shop Name" required>
+
+<input name="customer_name" class="phone-input" placeholder="Owner Name" required>
+
+<input name="phone" class="phone-input" placeholder="WhatsApp Number" required>
+
+<div class="payment-box">
+
+<h3>Select Payment Mode</h3>
+
+<div class="radio-row">
+<label>
+<input type="radio" name="pay" value="cod" checked onclick="toggleUPI()">
+Cash On Delivery
+</label>
+</div>
+
+<div class="radio-row">
+<label>
+<input type="radio" name="pay" value="upi" id="upiRadio" onclick="toggleUPI()">
+UPI Payment
+</label>
+</div>
+
+<!-- UPI Instructions -->
+<div id="upiBox" class="upi-info">
+
+<p><strong>UPI Payment Instructions:</strong></p>
+<p>Scan shop QR or pay using registered UPI ID.</p>
+<p>Order will be marked as Paid in invoice.</p>
+
+</div>
+
+</div>
+
+<br>
+
+<button type="submit" class="place-order-btn">
+Confirm Wholesale Order
+</button>
+
+</form>
+
+</div>
+
+</div>
+
+</body>
+</html>

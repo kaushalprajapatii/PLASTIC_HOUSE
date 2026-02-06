@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Login</title>
+<link rel="stylesheet" href="/static/style.css">
+<script src="/static/script.js"></script>
+</head>
+
+<body class="admin-bg">
+
+<div class="admin-card">
+
+<h2>Login</h2>
+
+<!-- USERNAME LOGIN -->
+<form method="post" action="/login">
+
+<input name="username" placeholder="Username" required>
+
+<input name="password" type="password" placeholder="Password" required>
+
+<button>Login</button>
+
+</form>
+
+<hr style="margin:20px 0;">
+
+<h3>Login With OTP</h3>
+
+<form method="post" action="/send_otp">
+
+<input name="phone" placeholder="Phone Number" required>
+
+<button>Send OTP</button>
+
+</form>
+
+<form method="post" action="/verify_otp">
+
+<input name="phone" placeholder="Phone Number" required>
+<input name="otp" placeholder="Enter OTP" required>
+
+<button>Verify OTP</button>
+
+</form>
+
+<p style="margin-top:10px;">
+New user?
+<a href="/register">Register</a>
+</p>
+
+</div>
+
+</body>
+</html>

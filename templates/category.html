@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>{{cat}} - Wholesale Store</title>
+<link rel="stylesheet" href="/static/style.css">
+<script src="/static/script.js"></script>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="topbar">
+<a href="/">Home</a>
+<a href="/cart">Cart</a>
+</div>
+
+<h2 style="text-align:center;margin-top:20px;">
+{{cat}} Wholesale Items
+</h2>
+
+<div class="product-grid">
+
+{% for item in items %}
+
+<div class="product-card">
+
+<!-- ===== MEDIA DISPLAY ===== -->
+{% if item.media %}
+
+{% for media in item.media %}
+
+{% if media.endswith(".mp4") %}
+
+<video class="product-img" controls>
+<source src="/static/images/{{media}}">
+</video>
+
+{% else %}
+
+<img 
+src="/static/images/{{media}}" 
+class="product-img"
+onclick="openPreview(this.src)"
+>
+
+{% endif %}
+
+{% endfor %}
+
+{% endif %}
+
+<h4>{{item.name}}</h4>
+
+<p>Price : Rs. {{item.price}}</p>
+
+<!-- STOCK STATUS -->
+{% if item.stock > 0 %}
+<p class="stock-green">Available : {{item.stock}}</p>
+{% else %}
+<p class="stock-red">Out of Stock</p>
+{% endif %}
+
+<!-- QUANTITY -->
+<input 
+type="number"
+id="qty{{loop.index}}"
+value="0"
+min="0"
+max="{{item.stock}}"
+class="qty-input"
+>
+
+<!-- ADD TO CART -->
+{% if item.stock > 0 %}
+
+<button 
+class="add-btn"
+data-name="{{item.name}}"
+data-price="{{item.price}}"
+data-image="{{item.media[0] if item.media else ''}}"
+data-id="qty{{loop.index}}"
+onclick="addCart(this)">
+Add To Cart
+</button>
+
+{% else %}
+<button class="add-btn" disabled>
+Out Of Stock
+</button>
+{% endif %}
+
+</div>
+
+{% endfor %}
+
+</div>
+
+<!-- IMAGE MODAL -->
+<div id="imgModal" class="img-modal" onclick="closePreview()">
+<span class="close-modal">✖</span>
+<img id="modalImg">
+</div>
+
+<div id="popup" class="popup"></div>
+
+</body>
+</html>

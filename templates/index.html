@@ -1,0 +1,30 @@
+<html>
+<head>
+<link rel="stylesheet" href="/static/style.css">
+<script src="/static/script.js"></script>
+</head>
+
+<body>
+
+<h2>Payment</h2>
+
+<h3>Total Amount ₹{{total}}</h3>
+
+<label>
+<input type="radio" name="pay" value="upi"> UPI
+</label>
+
+<label>
+<input type="radio" name="pay" value="cod" onclick="enableCOD()"> Cash On Delivery
+</label>
+
+<div id="upi-section">
+<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=UPI">
+</div>
+
+<button id="placeBtn" disabled onclick="location.href='/success'">
+Place Order
+</button>
+
+</body>
+</html>

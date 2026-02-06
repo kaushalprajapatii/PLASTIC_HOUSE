@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Wholesale Cart</title>
+<link rel="stylesheet" href="/static/style.css">
+
+<style>
+
+/* ===== CART TABLE ===== */
+
+.cart-table{
+width:90%;
+margin:30px auto;
+border-collapse:collapse;
+background:white;
+box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+.cart-table th,
+.cart-table td{
+border:1px solid #ddd;
+padding:12px;
+text-align:center;
+}
+
+.cart-table th{
+background:#f5f5f5;
+}
+
+.cart-img{
+width:60px;
+height:60px;
+object-fit:cover;
+border-radius:6px;
+}
+
+.delete-btn{
+color:red;
+font-weight:bold;
+text-decoration:none;
+}
+
+.summary-box{
+text-align:center;
+margin-top:20px;
+font-weight:bold;
+font-size:18px;
+}
+
+.empty-cart{
+text-align:center;
+margin-top:40px;
+font-size:18px;
+color:gray;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- ===== NAVBAR ===== -->
+<div class="topbar">
+<a href="/">Home</a>
+<a href="javascript:history.back()">Back</a>
+</div>
+
+<h2 style="text-align:center;margin-top:20px;">
+Wholesale Cart
+</h2>
+
+{% if cart %}
+
+{% set total_items = 0 %}
+
+<table class="cart-table">
+
+<tr>
+<th>Image</th>
+<th>Item</th>
+<th>Price</th>
+<th>Qty</th>
+<th>Subtotal</th>
+<th>Remove</th>
+</tr>
+
+{% for k,v in cart.items() %}
+
+{% set total_items = total_items + v.qty %}
+
+<tr>
+
+<td>
+<img src="/static/images/{{v.image}}" class="cart-img">
+</td>
+
+<td>{{k}}</td>
+
+<td>₹{{v.price}}</td>
+
+<td>{{v.qty}}</td>
+
+<td>₹{{v.qty * v.price}}</td>
+
+<td>
+<a href="/delete_cart/{{k}}" class="delete-btn">
+❌
+</a>
+</td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+<!-- ===== CART SUMMARY ===== -->
+<div class="summary-box">
+
+Total Items : {{total_items}} <br>
+Grand Total : ₹{{total}}
+
+</div>
+
+<!-- ===== CHECKOUT BUTTON ===== -->
+<div style="text-align:center;margin-top:20px;">
+<a href="/payment" class="pay-btn">
+Proceed to Wholesale Checkout
+</a>
+</div>
+
+{% else %}
+
+<div class="empty-cart">
+🛒 Your cart is empty
+</div>
+
+{% endif %}
+
+</body>
+</html>
